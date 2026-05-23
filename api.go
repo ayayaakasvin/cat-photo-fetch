@@ -1,3 +1,5 @@
+// Package provides standoff function that fetches photo from Cataas Public API(https://cataas.com)
+// You can visit website for more information
 package catphotofetch
 
 import (
@@ -7,18 +9,22 @@ import (
 
 const baseURL = "https://cataas.com/cat"
 
-func FetchRandomPhoto() ([]byte, error) {
+func FetchRandomPhoto() (*Image, error) {
 	resp, err := http.Get(baseURL)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var respBody []byte
-	respBody, err = io.ReadAll(resp.Body)
+	contentType := resp.Header.Get("Content-Type")
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	return respBody, nil
+	return &Image{
+		ContentType: contentType,
+		Data:        body,
+	}, nil
 }
