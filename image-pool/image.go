@@ -2,6 +2,7 @@ package imagepool
 
 import (
 	"fmt"
+	"sync"
 
 	catphotofetch "github.com/ayayaakasvin/cat-photo-fetch"
 )
@@ -18,6 +19,7 @@ type CatImagePool struct {
 
 	requestRefill chan struct{}
 	stop          chan struct{}
+	stopOnce      sync.Once
 }
 
 // Constructor of CatImagePool with size of 50
@@ -39,7 +41,7 @@ func NewCatImagePool() (*CatImagePool, error) {
 }
 
 func (c *CatImagePool) fill(size int) error {
-	for range size {
+	for i := 0; i < size; i++ {
 		img, err := catphotofetch.FetchRandomPhoto()
 		if err != nil {
 			return err
@@ -89,4 +91,11 @@ func (p *CatImagePool) Get() *catphotofetch.Image {
 	}
 
 	return img
+}
+
+// Stop gracefully stops the pool's refill goroutine
+func (p *CatImagePool) Stop() {
+	p.stopOnce.Do(func() {
+		close(p.stop)
+	})
 }
