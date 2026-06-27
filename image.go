@@ -10,6 +10,6 @@ type Image struct {
 	Data        []byte
 }
 
-func (i *Image) Reader() io.ReadCloser {
+func (i *Image) ReaderCloser() io.ReadCloser {
 	return io.NopCloser(bytes.NewReader(i.Data))
 }

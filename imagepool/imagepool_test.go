@@ -1,17 +1,20 @@
 package imagepool_test
 
 import (
+	"net/http"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
-	imagepool "github.com/ayayaakasvin/cat-photo-fetch/image-pool"
+	"github.com/ayayaakasvin/cat-photo-fetch/imagepool"
 )
 
 // TestNewCatImagePool tests that the pool initializes correctly
 func TestNewCatImagePool(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -25,7 +28,9 @@ func TestNewCatImagePool(t *testing.T) {
 
 // TestGetImage tests that Get() returns images
 func TestGetImage(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -47,7 +52,9 @@ func TestGetImage(t *testing.T) {
 
 // TestGetMultipleImages tests that Get() returns multiple different images
 func TestGetMultipleImages(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -82,7 +89,9 @@ func TestGetMultipleImages(t *testing.T) {
 
 // TestConcurrentGet tests that multiple goroutines can safely Get() from the pool
 func TestConcurrentGet(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -118,7 +127,9 @@ func TestConcurrentGet(t *testing.T) {
 
 // TestPoolRefill tests that the pool refills when it drops below the minimum boundary
 func TestPoolRefill(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -145,7 +156,9 @@ func TestPoolRefill(t *testing.T) {
 
 // TestStop tests that Stop() properly stops the refill goroutine
 func TestStop(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -170,7 +183,9 @@ func TestStop(t *testing.T) {
 
 // TestPoolCapacityNotExceeded tests that the pool doesn't exceed max capacity
 func TestPoolCapacityNotExceeded(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -208,7 +223,9 @@ done:
 
 // TestImageDataConsistency tests that fetched images have consistent data
 func TestImageDataConsistency(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}
@@ -220,7 +237,7 @@ func TestImageDataConsistency(t *testing.T) {
 	}
 
 	// Test that Reader() works correctly
-	reader := img.Reader()
+	reader := img.ReaderCloser()
 	if reader == nil {
 		t.Errorf("expected reader, got nil")
 	}
@@ -229,7 +246,9 @@ func TestImageDataConsistency(t *testing.T) {
 
 // TestSequentialGets tests sequential Gets work properly
 func TestSequentialGets(t *testing.T) {
-	pool, err := imagepool.NewCatImagePool()
+	pool, err := imagepool.NewCatImagePool(5, &http.Client{
+		Timeout: time.Minute * 1,
+	})
 	if err != nil {
 		t.Fatalf("failed to create pool: %v", err)
 	}

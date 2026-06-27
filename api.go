@@ -28,3 +28,23 @@ func FetchRandomPhoto() (*Image, error) {
 		Data:        body,
 	}, nil
 }
+
+func FetchViaCustomClient(c *http.Client) (*Image, error) {
+	resp, err := c.Get(baseURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	contentType := resp.Header.Get("Content-Type")
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Image{
+		ContentType: contentType,
+		Data:        body,
+	}, nil
+}
